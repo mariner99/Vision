@@ -1,0 +1,4 @@
+First Project 
+Image to Text
+Text to Speech
+Using Tesseract, gTTS and OpenCV
