@@ -4,16 +4,23 @@ import pytesseract
 from PIL import Image
 
 def i2t(image_path):
-	image=cv2.imread(image_path)
-	grayscale_image=cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+	#1. Reading the image in grayscale
+	img=cv2.imread(image_path,0)
 
-	#Saving the grayscale image for use in pytesseract
-	cv2.imwrite("tmp.jpg", grayscale_image)
-	text = pytesseract.image_to_string(Image.open("tmp.jpg"))
-	os.remove("tmp.jpg")
+	#2. Gaussian Blurring to remove noise and smoothen the image
+	blur = cv2.GaussianBlur(img,(5,5),0)
+
+	#3a. Adaptive Thresholding (need to tweak constants (last two) if doesn't work well)
+	adapt_th = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,99,20)
+
+	#3b. Otsu Binary Thresholding
+	retval_otsu,otsu_th = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+	#Saving the image and feeding it to pytesseract
+	cv2.imwrite("final.jpg",adapt_th)
+	text = pytesseract.image_to_string(Image.open("final.jpg"))
+	os.remove("final.jpg")
 	return text
-
-
 
 '''
 
